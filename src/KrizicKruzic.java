@@ -1,3 +1,4 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -9,13 +10,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
-
-import org.json.JSONArray;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,7 +33,6 @@ import java.awt.GridBagLayout;
 @SuppressWarnings("serial")
 public class KrizicKruzic extends JFrame implements ActionListener {
 
-	private JPanel contentPane;
 	private JButton firstButton;
 	private JButton secondButton;
 	private JButton thirdButton;
@@ -53,8 +46,32 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 	private JMenuItem i1;
 	private JMenuItem iPlayer;
 	private JMenuItem iStats;
+	public boolean isFirstPlayer = true;
+	private JMenuBar menuBar;
+	private JMenu mnGame;
+	private JMenu mnPlayers;
+	public JDialog dialog = new JDialog();
+	public String firstPlayer = "";
+	public String secondPlayer = "";
+	public String winner = "";
+	public String looser = "";
+	public int scoreFirstPlayer = 0;
+	public int scoreSecondPlayer = 0;
 	JTextField jtfFirstPlayer = new JTextField();
 	JTextField jtfSecondPlayer = new JTextField();
+	JLabel lblFirstPlayer;
+	JLabel lblSecondPlayer;
+	JLabel lblFirstPlayerName;
+	JLabel lblSecondPlayerName;
+	JLabel labelPlayerOne = new JLabel("First player ('X'):  ");
+	JLabel labelPlayerTwo = new JLabel("Second player ('O'):  ");
+	JLabel labelResult = new JLabel("Score: ");
+	JLabel lblFirstPlayerScore;
+	JLabel lblBetweenScores;
+	JLabel lblSecondPlayerScore;
+	JPanel contentPane = new JPanel(new BorderLayout());
+	JPanel infoPanel = new JPanel(); 
+	JPanel gamePanel = new JPanel();
 	public static KrizicKruzic frame;
 
 	/**
@@ -65,6 +82,7 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 			public void run() {
 				try {
 					frame = new KrizicKruzic();
+					frame.setTitle("Križiæ kružiæ");
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -101,72 +119,80 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 		mnPlayers.add(iPlayer);
 		mnPlayers.add(iStats);
 		menuBar.add(mnPlayers);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
+		
+		//Now add everything to master panel.
+		contentPane.add(infoPanel, BorderLayout.NORTH);
+		
+		lblFirstPlayer = new JLabel("(X) ");
+		lblFirstPlayerName = new JLabel("first player");
+		lblFirstPlayerScore= new JLabel("   0 ");
+		lblBetweenScores= new JLabel(":");
+		lblSecondPlayerScore= new JLabel(" 0   ");
+		lblSecondPlayerName = new JLabel("second player");
+		lblSecondPlayer = new JLabel(" (O)");
+		infoPanel.add(lblFirstPlayer);
+		infoPanel.add(lblFirstPlayerName);
+		infoPanel.add(lblFirstPlayerScore);
+		infoPanel.add(lblBetweenScores);
+		infoPanel.add(lblSecondPlayerScore);
+		infoPanel.add(lblSecondPlayerName);		
+		infoPanel.add(lblSecondPlayer);
+
+		
 		GridLayout gl_contentPane = new GridLayout(3, 3);
 		gl_contentPane.setHgap(5);
 		gl_contentPane.setVgap(5);
-		contentPane.setLayout(gl_contentPane);
-
+		gamePanel.setLayout(gl_contentPane);
+		contentPane.add(gamePanel, null);
+		this.getContentPane().add(contentPane);
+		
 		firstButton = new JButton("");
 		firstButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
-		contentPane.add(firstButton);
+		gamePanel.add(firstButton);
 		firstButton.addActionListener(this);
 
 		secondButton = new JButton("");
 		secondButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
-		contentPane.add(secondButton);
+		gamePanel.add(secondButton);
 		secondButton.addActionListener(this);
 
 		thirdButton = new JButton("");
 		thirdButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
-		contentPane.add(thirdButton);
+		gamePanel.add(thirdButton);
 		thirdButton.addActionListener(this);
 
 		fourthButton = new JButton("");
 		fourthButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
-		contentPane.add(fourthButton);
+		gamePanel.add(fourthButton);
 		fourthButton.addActionListener(this);
 
 		fifthButton = new JButton("");
 		fifthButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
-		contentPane.add(fifthButton);
+		gamePanel.add(fifthButton);
 		fifthButton.addActionListener(this);
 
 		sixthButton = new JButton("");
 		sixthButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
-		contentPane.add(sixthButton);
+		gamePanel.add(sixthButton);
 		sixthButton.addActionListener(this);
 
 		seventhButton = new JButton("");
 		seventhButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
-		contentPane.add(seventhButton);
+		gamePanel.add(seventhButton);
 		seventhButton.addActionListener(this);
 
 		eightButton = new JButton("");
 		eightButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
-		contentPane.add(eightButton);
+		gamePanel.add(eightButton);
 		eightButton.addActionListener(this);
 
 		ninethButton = new JButton("");
 		ninethButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
-		contentPane.add(ninethButton);
+		gamePanel.add(ninethButton);
 		ninethButton.addActionListener(this);
 
 	}
 
-	public boolean isFirstPlayer = true;
-	private JMenuBar menuBar;
-	private JMenu mnGame;
-	private JMenu mnPlayers;
-	public JDialog dialog;
-	public String firstPlayer = "";
-	public String secondPlayer = "";
-	public String winner = "";
-	public String looser = "";
-	public int scoreFirstPlayer = 0;
-	public int scoreSecondPlayer = 0;
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -179,6 +205,7 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 					if (checkWinningCombination()) {
 						scoreFirstPlayer += 1;
 						winner = firstPlayer;
+						lblFirstPlayerScore.setText(String.valueOf(scoreFirstPlayer));
 						try {
 							submitScore(firstPlayer, secondPlayer, winner);
 						} catch (SQLException e1) {
@@ -191,6 +218,7 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 					if (checkWinningCombination()) {
 						scoreSecondPlayer += 1;
 						winner = secondPlayer;
+						lblSecondPlayerScore.setText(String.valueOf(scoreSecondPlayer));
 						try {
 							submitScore(firstPlayer, secondPlayer, winner);
 						} catch (SQLException e1) {
@@ -203,6 +231,10 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 			case "Submit players":
 				firstPlayer = jtfFirstPlayer.getText();
 				secondPlayer = jtfSecondPlayer.getText();
+				lblFirstPlayerName.setText(jtfFirstPlayer.getText());
+				lblSecondPlayerName.setText(jtfSecondPlayer.getText());
+				lblFirstPlayerScore.setText("0");
+				lblSecondPlayerScore.setText("0");
 				dialog.dispatchEvent(new WindowEvent(dialog, WindowEvent.WINDOW_CLOSING));
 				break;
 			}
@@ -213,7 +245,9 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 				newGame();
 				break;
 			case "Exit":
-				dialog.setVisible(false);
+				if(dialog.isVisible()) {
+					dialog.setVisible(false);	
+				}
 				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 				break;
 			case "Enter players":
@@ -286,20 +320,20 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 		first.setBackground(Color.DARK_GRAY);
 		second.setBackground(Color.DARK_GRAY);
 		third.setBackground(Color.DARK_GRAY);
-		int noOfComponents = contentPane.getComponentCount();
+		int noOfComponents = gamePanel.getComponentCount();
 		for (int i = 0; i < noOfComponents; i++) {
-			contentPane.getComponent(i).setEnabled(false);
+			gamePanel.getComponent(i).setEnabled(false);
 		}
 
 	}
 
 	public void newGame() {
 		isFirstPlayer = true;
-		int noOfComponents = contentPane.getComponentCount();
+		int noOfComponents = gamePanel.getComponentCount();
 		for (int i = 0; i < noOfComponents; i++) {
-			contentPane.getComponent(i).setEnabled(true);
-			if (contentPane.getComponent(i) instanceof JButton) {
-				JButton set = (JButton) contentPane.getComponent(i);
+			gamePanel.getComponent(i).setEnabled(true);
+			if (gamePanel.getComponent(i) instanceof JButton) {
+				JButton set = (JButton) gamePanel.getComponent(i);
 				set.setText("");
 				set.setBackground(null);
 			}
@@ -310,43 +344,36 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 	public void showPlayersDialog() {
 		GridBagConstraints gbc = new GridBagConstraints();
 		GridBagLayout gbl = new GridBagLayout();
-		JLabel labelFirstPlayer = new JLabel("First player ('X'):  ");
-		JLabel labelSecondPlayer = new JLabel("Second player ('O'):  ");
 		JButton submitPlayers = new JButton("Submit players");
 
 		dialog = new JDialog((JDialog) null, "Players");
 		dialog.setPreferredSize(new Dimension(400, 200));
-		dialog.setLayout(gbl);
+		dialog.getContentPane().setLayout(gbl);
 
-		dialog.add(labelFirstPlayer);
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		dialog.add(labelFirstPlayer, gbc);
+		dialog.getContentPane().add(labelPlayerOne, gbc);
 
-		dialog.add(jtfFirstPlayer);
 		jtfFirstPlayer.setPreferredSize(new Dimension(150, 30));
 		gbc.gridx = 1;
 		gbc.gridy = 0;
-		dialog.add(jtfFirstPlayer, gbc);
+		dialog.getContentPane().add(jtfFirstPlayer, gbc);
 
-		dialog.add(labelSecondPlayer);
 		gbc.gridx = 0;
 		gbc.gridy = 1;
-		dialog.add(labelSecondPlayer, gbc);
+		dialog.getContentPane().add(labelPlayerTwo, gbc);
 
-		dialog.add(jtfSecondPlayer);
 		jtfSecondPlayer.setPreferredSize(new Dimension(150, 30));
 		gbc.gridx = 1;
 		gbc.gridy = 1;
-		dialog.add(jtfSecondPlayer, gbc);
+		dialog.getContentPane().add(jtfSecondPlayer, gbc);
 
-		dialog.add(submitPlayers);
 		submitPlayers.setPreferredSize(new Dimension(150, 30));
 		gbc.gridx = 1;
 		gbc.gridy = 2;
-		dialog.add(submitPlayers, gbc);
+		dialog.getContentPane().add(submitPlayers, gbc);
 		submitPlayers.addActionListener(this);
-
+		
 		dialog.pack();
 		dialog.setLocationRelativeTo(frame);
 		dialog.setVisible(true);
@@ -435,7 +462,7 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 	public void showStatisticsDialog() throws SQLException {
 		Connection conn = connect();
 		Statement ps = conn.createStatement();
-		ResultSet rs = ps.executeQuery("select * from tictactoe");
+		ResultSet rs = ps.executeQuery("select * from tictactoe order by winner desc limit 10");
 		ArrayList<ArrayList<String>> table = new ArrayList<>();
 		while (rs.next()) {
 			ArrayList<String> pl = new ArrayList<>();
@@ -459,15 +486,15 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 
 		dialog = new JDialog((JDialog) null, "Players");
 		dialog.setPreferredSize(new Dimension(500, 300));
-		dialog.setLayout(gbl);
+		dialog.getContentPane().setLayout(gbl);
 		
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		dialog.add(tableStatistics.getTableHeader());
+		dialog.getContentPane().add(tableStatistics.getTableHeader());
 
 		gbc.gridx = 0;
 		gbc.gridy = 1;
-		dialog.add(tableStatistics, gbc);
+		dialog.getContentPane().add(tableStatistics, gbc);
 
 		dialog.pack();
 		dialog.setLocationRelativeTo(frame);
