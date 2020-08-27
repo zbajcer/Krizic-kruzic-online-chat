@@ -10,6 +10,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 import javax.swing.border.Border;
 
 import java.awt.GridLayout;
@@ -83,6 +84,7 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					frame = new KrizicKruzic();
@@ -99,7 +101,7 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 	 * Create the frame.
 	 */
 	public KrizicKruzic() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setBounds(200, 50, 600, 600);
 
 		menuBar = new JMenuBar();
@@ -256,6 +258,8 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 				lblSecondPlayerName.setText(jtfSecondPlayer.getText());
 				lblFirstPlayerScore.setText("0");
 				lblSecondPlayerScore.setText("0");
+				scoreFirstPlayer = 0;
+				scoreSecondPlayer = 0;
 				newGame();
 				dialog.dispatchEvent(new WindowEvent(dialog, WindowEvent.WINDOW_CLOSING));
 				break;

@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="C:/jackson-core-2.11.1.jar"/>
 	<classpathentry kind="lib" path="C:/jackson-databind-2.11.1.jar"/>
 	<classpathentry kind="lib" path="C:/java-json.jar"/>
+	<classpathentry kind="lib" path="C:/jfxrt.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
