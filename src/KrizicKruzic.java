@@ -10,6 +10,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
+
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,6 +25,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 
@@ -72,6 +75,7 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 	JPanel contentPane = new JPanel(new BorderLayout());
 	JPanel infoPanel = new JPanel(); 
 	JPanel gamePanel = new JPanel();
+	Border emptyBorder = BorderFactory.createEmptyBorder();
 	public static KrizicKruzic frame;
 
 	/**
@@ -96,7 +100,7 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 	 */
 	public KrizicKruzic() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 600, 600);
+		setBounds(200, 50, 600, 600);
 
 		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -138,56 +142,73 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 		infoPanel.add(lblSecondPlayerName);		
 		infoPanel.add(lblSecondPlayer);
 
-		
 		GridLayout gl_contentPane = new GridLayout(3, 3);
-		gl_contentPane.setHgap(5);
-		gl_contentPane.setVgap(5);
+		gl_contentPane.setHgap(1);
+		gl_contentPane.setVgap(1);
 		gamePanel.setLayout(gl_contentPane);
 		contentPane.add(gamePanel, null);
 		this.getContentPane().add(contentPane);
 		
 		firstButton = new JButton("");
-		firstButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
+		firstButton.setFont(new Font("Tahoma", Font.BOLD, 99));
+		firstButton.setBackground(Color.white);
+		firstButton.setBorder(emptyBorder);
 		gamePanel.add(firstButton);
 		firstButton.addActionListener(this);
 
 		secondButton = new JButton("");
-		secondButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
+		secondButton.setFont(new Font("Tahoma", Font.BOLD, 99));
+		secondButton.setBackground(Color.white);
+		secondButton.setBorder(emptyBorder);
 		gamePanel.add(secondButton);
 		secondButton.addActionListener(this);
 
 		thirdButton = new JButton("");
-		thirdButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
+		thirdButton.setFont(new Font("Tahoma", Font.BOLD, 99));
+		thirdButton.setBackground(Color.white);
+		thirdButton.setBorder(emptyBorder);
 		gamePanel.add(thirdButton);
 		thirdButton.addActionListener(this);
 
 		fourthButton = new JButton("");
-		fourthButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
+		fourthButton.setFont(new Font("Tahoma", Font.BOLD, 99));
+		fourthButton.setBackground(Color.white);
+		fourthButton.setBorder(emptyBorder);
 		gamePanel.add(fourthButton);
 		fourthButton.addActionListener(this);
 
 		fifthButton = new JButton("");
-		fifthButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
+		fifthButton.setFont(new Font("Tahoma", Font.BOLD, 99));
+		fifthButton.setBackground(Color.white);
+		fifthButton.setBorder(emptyBorder);
 		gamePanel.add(fifthButton);
 		fifthButton.addActionListener(this);
 
 		sixthButton = new JButton("");
-		sixthButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
+		sixthButton.setFont(new Font("Tahoma", Font.BOLD, 99));
+		sixthButton.setBackground(Color.white);
+		sixthButton.setBorder(emptyBorder);
 		gamePanel.add(sixthButton);
 		sixthButton.addActionListener(this);
 
 		seventhButton = new JButton("");
-		seventhButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
+		seventhButton.setFont(new Font("Tahoma", Font.BOLD, 99));
+		seventhButton.setBackground(Color.white);
+		seventhButton.setBorder(emptyBorder);
 		gamePanel.add(seventhButton);
 		seventhButton.addActionListener(this);
 
 		eightButton = new JButton("");
-		eightButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
+		eightButton.setFont(new Font("Tahoma", Font.BOLD, 99));
+		eightButton.setBackground(Color.white);
+		eightButton.setBorder(emptyBorder);
 		gamePanel.add(eightButton);
 		eightButton.addActionListener(this);
 
 		ninethButton = new JButton("");
-		ninethButton.setFont(new Font("Tahoma", Font.PLAIN, 99));
+		ninethButton.setFont(new Font("Tahoma", Font.BOLD, 99));
+		ninethButton.setBackground(Color.white);
+		ninethButton.setBorder(emptyBorder);
 		gamePanel.add(ninethButton);
 		ninethButton.addActionListener(this);
 
@@ -235,6 +256,7 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 				lblSecondPlayerName.setText(jtfSecondPlayer.getText());
 				lblFirstPlayerScore.setText("0");
 				lblSecondPlayerScore.setText("0");
+				newGame();
 				dialog.dispatchEvent(new WindowEvent(dialog, WindowEvent.WINDOW_CLOSING));
 				break;
 			}
@@ -335,7 +357,7 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 			if (gamePanel.getComponent(i) instanceof JButton) {
 				JButton set = (JButton) gamePanel.getComponent(i);
 				set.setText("");
-				set.setBackground(null);
+				set.setBackground(Color.white);
 			}
 
 		}
