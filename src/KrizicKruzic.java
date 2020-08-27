@@ -474,6 +474,7 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 		dialog.setVisible(true);
 	}
 
+	
 	public Connection connect() {
 		Connection conne = null;
 		try {
