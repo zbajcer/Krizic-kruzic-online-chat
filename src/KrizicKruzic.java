@@ -4,18 +4,26 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.Border;
+import javax.swing.text.DefaultCaret;
 
-import java.awt.GridLayout;
+import com.sun.glass.events.KeyEvent;
+
+import entities.User;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -27,16 +35,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import javax.swing.JTextArea;
 
 @SuppressWarnings("serial")
 public class KrizicKruzic extends JFrame implements ActionListener {
 
+	private static String user;
+	
+	public void setUser(String user) {
+		KrizicKruzic.user = user;
+	}
+	
+	public static String getUser() {
+		return user;
+	}
+	
 	private JButton firstButton;
 	private JButton secondButton;
 	private JButton thirdButton;
@@ -74,15 +94,48 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 	JLabel lblBetweenScores;
 	JLabel lblSecondPlayerScore;
 	JPanel contentPane = new JPanel(new BorderLayout());
-	JPanel infoPanel = new JPanel(); 
+	JPanel infoPanel = new JPanel();
 	JPanel gamePanel = new JPanel();
 	Border emptyBorder = BorderFactory.createEmptyBorder();
+	@SuppressWarnings("rawtypes")
+	JList jList1 = new JList();
+	JTextArea areaMessages = new JTextArea();
+	JScrollPane jScrollPane2 = new JScrollPane();
+	JScrollPane jScrollPane3 = new JScrollPane();
+	JButton btsend = new JButton("SEND");
+	JTextField fieldMsg = new JTextField();
+
 	public static KrizicKruzic frame;
+
+	NetworkManager net;
+	DefaultListModel<String> dlm;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		// Set the NIMBUS look and feel. if not available -> stay with the default look
+		// and feel.
+		try {
+			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					javax.swing.UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (ClassNotFoundException ex) {
+			java.util.logging.Logger.getLogger(KrizicKruzic.class.getName()).log(java.util.logging.Level.SEVERE, null,
+					ex);
+		} catch (InstantiationException ex) {
+			java.util.logging.Logger.getLogger(KrizicKruzic.class.getName()).log(java.util.logging.Level.SEVERE, null,
+					ex);
+		} catch (IllegalAccessException ex) {
+			java.util.logging.Logger.getLogger(KrizicKruzic.class.getName()).log(java.util.logging.Level.SEVERE, null,
+					ex);
+		} catch (javax.swing.UnsupportedLookAndFeelException ex) {
+			java.util.logging.Logger.getLogger(KrizicKruzic.class.getName()).log(java.util.logging.Level.SEVERE, null,
+					ex);
+		}
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -97,12 +150,36 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 		});
 	}
 
+	public KrizicKruzic() {
+		net = NetworkManager.getInstance();
+		net.setServer(leerIP(), 2014);
+		net.setChatInterface(this);
+		net.send("NICK " + leerNick());
+		dlm = new DefaultListModel<>();
+		initComponents();
+		setComponentsExtras();
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				net.listenServer();
+			}
+		}).start();
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				net.send("EXIT");
+			}
+		});
+	}
+
 	/**
 	 * Create the frame.
 	 */
-	public KrizicKruzic() {
+	@SuppressWarnings("unchecked")
+	private void initComponents() {
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		setBounds(200, 50, 600, 600);
+		setBounds(200, 50, 800, 650);
 
 		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -125,15 +202,14 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 		mnPlayers.add(iPlayer);
 		mnPlayers.add(iStats);
 		menuBar.add(mnPlayers);
-		
-		//Now add everything to master panel.
+
 		contentPane.add(infoPanel, BorderLayout.NORTH);
-		
+
 		lblFirstPlayer = new JLabel("(X) ");
 		lblFirstPlayerName = new JLabel("first player");
-		lblFirstPlayerScore= new JLabel("   0 ");
-		lblBetweenScores= new JLabel(":");
-		lblSecondPlayerScore= new JLabel(" 0   ");
+		lblFirstPlayerScore = new JLabel("   0 ");
+		lblBetweenScores = new JLabel(":");
+		lblSecondPlayerScore = new JLabel(" 0   ");
 		lblSecondPlayerName = new JLabel("second player");
 		lblSecondPlayer = new JLabel(" (O)");
 		infoPanel.add(lblFirstPlayer);
@@ -141,86 +217,140 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 		infoPanel.add(lblFirstPlayerScore);
 		infoPanel.add(lblBetweenScores);
 		infoPanel.add(lblSecondPlayerScore);
-		infoPanel.add(lblSecondPlayerName);		
+		infoPanel.add(lblSecondPlayerName);
 		infoPanel.add(lblSecondPlayer);
-
-		GridLayout gl_contentPane = new GridLayout(3, 3);
-		gl_contentPane.setHgap(1);
-		gl_contentPane.setVgap(1);
-		gamePanel.setLayout(gl_contentPane);
 		contentPane.add(gamePanel, null);
 		this.getContentPane().add(contentPane);
-		
+		gamePanel.setLayout(null);
+
 		firstButton = new JButton("");
+		firstButton.setBounds(1, 0, 194, 172);
 		firstButton.setFont(new Font("Tahoma", Font.BOLD, 99));
 		firstButton.setBackground(Color.white);
 		firstButton.setBorder(emptyBorder);
+		firstButton.setName("firstButton");
 		gamePanel.add(firstButton);
 		firstButton.addActionListener(this);
 
 		secondButton = new JButton("");
+		secondButton.setBounds(196, 0, 194, 172);
 		secondButton.setFont(new Font("Tahoma", Font.BOLD, 99));
 		secondButton.setBackground(Color.white);
 		secondButton.setBorder(emptyBorder);
+		secondButton.setName("secondButton");
 		gamePanel.add(secondButton);
 		secondButton.addActionListener(this);
 
 		thirdButton = new JButton("");
+		thirdButton.setBounds(391, 0, 194, 172);
 		thirdButton.setFont(new Font("Tahoma", Font.BOLD, 99));
 		thirdButton.setBackground(Color.white);
 		thirdButton.setBorder(emptyBorder);
+		thirdButton.setName("thirdButton");
 		gamePanel.add(thirdButton);
 		thirdButton.addActionListener(this);
 
 		fourthButton = new JButton("");
+		fourthButton.setBounds(1, 173, 194, 172);
 		fourthButton.setFont(new Font("Tahoma", Font.BOLD, 99));
 		fourthButton.setBackground(Color.white);
 		fourthButton.setBorder(emptyBorder);
+		fourthButton.setName("fourthButton");
 		gamePanel.add(fourthButton);
 		fourthButton.addActionListener(this);
 
 		fifthButton = new JButton("");
+		fifthButton.setBounds(196, 173, 194, 172);
 		fifthButton.setFont(new Font("Tahoma", Font.BOLD, 99));
 		fifthButton.setBackground(Color.white);
 		fifthButton.setBorder(emptyBorder);
+		fifthButton.setName("fifthButton");
 		gamePanel.add(fifthButton);
 		fifthButton.addActionListener(this);
 
 		sixthButton = new JButton("");
+		sixthButton.setBounds(391, 173, 194, 172);
 		sixthButton.setFont(new Font("Tahoma", Font.BOLD, 99));
 		sixthButton.setBackground(Color.white);
 		sixthButton.setBorder(emptyBorder);
+		sixthButton.setName("sixthButton");
 		gamePanel.add(sixthButton);
 		sixthButton.addActionListener(this);
 
 		seventhButton = new JButton("");
+		seventhButton.setBounds(1, 346, 194, 172);
 		seventhButton.setFont(new Font("Tahoma", Font.BOLD, 99));
 		seventhButton.setBackground(Color.white);
 		seventhButton.setBorder(emptyBorder);
+		seventhButton.setName("seventhButton");
 		gamePanel.add(seventhButton);
 		seventhButton.addActionListener(this);
 
 		eightButton = new JButton("");
+		eightButton.setBounds(196, 346, 194, 172);
 		eightButton.setFont(new Font("Tahoma", Font.BOLD, 99));
 		eightButton.setBackground(Color.white);
 		eightButton.setBorder(emptyBorder);
+		eightButton.setName("eightButton");
 		gamePanel.add(eightButton);
 		eightButton.addActionListener(this);
 
 		ninethButton = new JButton("");
+		ninethButton.setBounds(391, 346, 194, 172);
 		ninethButton.setFont(new Font("Tahoma", Font.BOLD, 99));
 		ninethButton.setBackground(Color.white);
 		ninethButton.setBorder(emptyBorder);
-		gamePanel.add(ninethButton);
+		ninethButton.setName("ninethButton");
 		ninethButton.addActionListener(this);
+		gamePanel.add(ninethButton);
+
+		jList1.setModel(dlm);
+		jList1.setFixedCellHeight(20);
+		jScrollPane3.setViewportView(jList1);
+
+		fieldMsg.setBounds(1, 528, 584, 30);
+		gamePanel.add(fieldMsg);
+		fieldMsg.setColumns(10);
+
+		areaMessages.setBounds(595, 177, 181, 341);
+		areaMessages.setEditable(false);
+		areaMessages.setColumns(20);
+		areaMessages.setLineWrap(true);
+		areaMessages.setRows(5);
+		areaMessages.setToolTipText("");
+		areaMessages.setWrapStyleWord(true);
+		jScrollPane2.setViewportView(areaMessages);
+		gamePanel.add(areaMessages);
+
+		btsend.setBounds(595, 528, 181, 30);
+		gamePanel.add(btsend);
+
+		jList1.setBounds(595, 0, 181, 172);
+		gamePanel.add(jList1);
+
+		fieldMsg.addKeyListener(new java.awt.event.KeyAdapter() {
+			@Override
+			public void keyPressed(java.awt.event.KeyEvent evt) {
+				fieldMsgKeyPressed(evt);
+			}
+		});
+
+		btsend.setName("sendButton");
+		btsend.setText("send");
+		btsend.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				btsendActionPerformed(evt);
+			}
+		});
 
 	}
-
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() instanceof JButton) {
 			JButton buttonClicked = (JButton) e.getSource();
+			btsendActionPerformed(e);
 			switch (buttonClicked.getText()) {
 			case "":
 				if (isFirstPlayer == true) {
@@ -271,8 +401,8 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 				newGame();
 				break;
 			case "Exit":
-				if(dialog.isVisible()) {
-					dialog.setVisible(false);	
+				if (dialog.isVisible()) {
+					dialog.setVisible(false);
 				}
 				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 				break;
@@ -348,8 +478,11 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 		third.setBackground(Color.DARK_GRAY);
 		int noOfComponents = gamePanel.getComponentCount();
 		for (int i = 0; i < noOfComponents; i++) {
-			gamePanel.getComponent(i).setEnabled(false);
+			if (gamePanel.getComponent(i) instanceof JButton) {
+				gamePanel.getComponent(i).setEnabled(false);
+			}
 		}
+		btsend.setEnabled(true);
 
 	}
 
@@ -360,9 +493,11 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 			gamePanel.getComponent(i).setEnabled(true);
 			if (gamePanel.getComponent(i) instanceof JButton) {
 				JButton set = (JButton) gamePanel.getComponent(i);
+				if(set.getName() != "sendButton") {
 				set.setText("");
 				set.setBackground(Color.white);
 			}
+		}
 
 		}
 	}
@@ -399,7 +534,7 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 		gbc.gridy = 2;
 		dialog.getContentPane().add(submitPlayers, gbc);
 		submitPlayers.addActionListener(this);
-		
+
 		dialog.pack();
 		dialog.setLocationRelativeTo(frame);
 		dialog.setVisible(true);
@@ -498,7 +633,7 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 			pl.add(String.valueOf(rs.getInt(4)));
 			table.add(pl);
 		}
-		String[] tempTitel = {"Player","Opponent","Winners","Loosers"};
+		String[] tempTitel = { "Player", "Opponent", "Winners", "Loosers" };
 		String[][] tempTable = new String[table.size()][];
 		int i = 0;
 		for (List<String> next : table) {
@@ -513,7 +648,7 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 		dialog = new JDialog((JDialog) null, "Players");
 		dialog.setPreferredSize(new Dimension(500, 300));
 		dialog.getContentPane().setLayout(gbl);
-		
+
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		dialog.getContentPane().add(tableStatistics.getTableHeader());
@@ -527,7 +662,6 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 		dialog.setVisible(true);
 	}
 
-	
 	public Connection connect() {
 		Connection conne = null;
 		try {
@@ -543,4 +677,67 @@ public class KrizicKruzic extends JFrame implements ActionListener {
 		return null;
 	}
 
+	private void btsendActionPerformed(java.awt.event.ActionEvent evt) {
+		if (evt.getSource() instanceof JButton) {
+			JButton buttonClicked = (JButton) evt.getSource();
+			if(buttonClicked.getName().contentEquals("sendButton")) {
+				// send the message to the server
+				net.send(fieldMsg.getText());
+				// clean the text field
+				fieldMsg.setText("");
+			}
+			else {
+			net.send("xo " + user + " " + buttonClicked.getName());
+			}
+		}
+	}
+
+	private void fieldMsgKeyPressed(java.awt.event.KeyEvent evt) {
+		if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+			btsendActionPerformed(null);
+		}
+	}
+
+	public void addUser(User u) {
+		dlm.addElement(u.getNick());
+	}
+
+	public void addMessage(String s) {
+		areaMessages.append(s + "\n");
+	}
+	
+	public void pressButton(String button) {
+		for(int i = 0; i < gamePanel.getComponentCount(); i++) {
+			if(gamePanel.getComponent(i).getName() != null) {
+			if(gamePanel.getComponent(i).getName().contentEquals(button)) {
+				JButton clbutton = (JButton) gamePanel.getComponent(i);
+					clbutton.doClick();
+					clbutton.setEnabled(false);
+					clbutton.setBackground(Color.WHITE);
+				}
+			}
+		}
+	}
+
+	public void clearList() {
+		dlm.clear();
+	}
+
+	private void setComponentsExtras() {
+		DefaultCaret caret = (DefaultCaret) areaMessages.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		jList1.setFixedCellHeight(20);
+		setLocationRelativeTo(null);
+		fieldMsg.requestFocus();
+	}
+
+	private String leerIP() {
+		return JOptionPane.showInputDialog(null, "Enter the server IP", "127.0.0.1");
+	}
+
+	private String leerNick() {
+		user = JOptionPane.showInputDialog(null, "Enter your username", "user");
+		setUser(user);
+		return user;
+	}
 }
